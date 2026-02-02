@@ -1,4 +1,4 @@
-# Stage 1: Build Stage
+# Stage 1: Build Stage #######
 # Use the official PHP 8.3 image with Apache for building the application
 FROM php:8.3-cli AS builder
 
