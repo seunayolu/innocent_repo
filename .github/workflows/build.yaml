@@ -39,7 +39,7 @@ jobs:
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
 
     - name: Run Trivy scan
-      uses: aquasecurity/trivy-action@v0.33.1
+      uses: aquasecurity/trivy-action@0.33.1
       with:
         image-ref: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
         severity: HIGH,CRITICAL
