@@ -13,7 +13,7 @@ npm install
 2. Provide the following environment variables (set these in your environment or using your deployment tooling):
 
 - `AWS_REGION` (optional, default us-east-1)
-- `S3_BUCKET_NAME` (optional) — S3 bucket where attachments will be stored; required only if you upload files
+- `S3_BUCKET_PARAM` (optional) — SSM parameter name for S3 bucket name (default: /contactform/s3/bucket); required only if you upload files
 - `DB_HOST_PARAM` (optional) — SSM parameter name for DB host (default: /contactform/db/host)
 - `DB_USER_PARAM` (optional) — SSM parameter name for DB user (default: /contactform/db/user)
 - `DB_NAME_PARAM` (optional) — SSM parameter name for DB name (default: /contactform/db/name)

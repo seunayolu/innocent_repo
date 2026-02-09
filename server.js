@@ -59,10 +59,11 @@ const DB_USER_PARAM = process.env.DB_USER_PARAM || '/contactform/db/user';
 const DB_NAME_PARAM = process.env.DB_NAME_PARAM || '/contactform/db/name';
 const DB_PORT_PARAM = process.env.DB_PORT_PARAM || '/contactform/db/port';
 const DB_PASSWORD_SECRET = process.env.DB_PASSWORD_SECRET || 'contactform/db/password';
-const S3_BUCKET = process.env.S3_BUCKET_NAME; // optional; required only when uploading files
+const S3_BUCKET_PARAM = process.env.S3_BUCKET_PARAM || '/contactform/s3/bucket';
 const ALLOW_LOCAL_TEST = process.env.ALLOW_LOCAL_TEST === 'true';
 
 let localDbConfig = null; // populated via /local-config when ALLOW_LOCAL_TEST is true
+let cachedS3Bucket = null; // cached S3 bucket name
 
 async function getParameter(name) {
 	await initAwsClients();
@@ -144,11 +145,14 @@ async function ensureDb() {
 }
 
 async function uploadToS3(buffer, key, contentType) {
-	if (!S3_BUCKET) throw new Error('S3_BUCKET_NAME not configured');
+	if (!cachedS3Bucket) {
+		cachedS3Bucket = await getParameter(S3_BUCKET_PARAM);
+	}
+	if (!cachedS3Bucket) throw new Error('S3_BUCKET_NAME not configured in Parameter Store');
 	await initAwsClients();
-	const cmd = new PutObjectCommand({ Bucket: S3_BUCKET, Key: key, Body: buffer, ContentType: contentType });
+	const cmd = new PutObjectCommand({ Bucket: cachedS3Bucket, Key: key, Body: buffer, ContentType: contentType });
 	await s3.send(cmd);
-	return `https://${S3_BUCKET}.s3.${REGION}.amazonaws.com/${encodeURIComponent(key)}`;
+	return `https://${cachedS3Bucket}.s3.${REGION}.amazonaws.com/${encodeURIComponent(key)}`;
 }
 
 app.use(express.json());
@@ -161,8 +165,7 @@ app.post('/submit', upload.single('attachment'), async (req, res) => {
 		let attachmentUrl = null;
 
 		if (req.file) {
-			if (!S3_BUCKET) throw new Error('Server not configured with S3_BUCKET_NAME for file uploads');
-			const key = `uploads/${Date.now()}_${req.file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+
 			attachmentUrl = await uploadToS3(req.file.buffer, key, req.file.mimetype);
 		}
 
