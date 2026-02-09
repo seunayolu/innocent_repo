@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Contact Form</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-50 min-h-screen flex items-center justify-center p-6">
+    <div class="w-full max-w-3xl bg-white rounded-xl shadow-lg p-8">
+      <h1 class="text-2xl font-semibold mb-4">Get in touch</h1>
+      <form id="contactForm" class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <input name="name" required placeholder="Your name" class="p-3 border rounded-md w-full" />
+          <input name="email" type="email" required placeholder="Email" class="p-3 border rounded-md w-full" />
+        </div>
+        <textarea name="message" rows="4" placeholder="Message" class="w-full p-3 border rounded-md"></textarea>
+        <div>
+          <label class="block text-sm font-medium mb-2">Attachment (optional)</label>
+          <input type="file" name="attachment" class="block" />
+        </div>
+
+        <div class="flex items-center gap-4">
+          <button type="submit" class="bg-gradient-to-r from-indigo-500 to-sky-400 text-white px-6 py-2 rounded-md shadow">Send message</button>
+          <div id="status" class="text-sm text-gray-600"></div>
+        </div>
+      </form>
+      <p class="mt-6 text-sm text-gray-500">Files are stored in S3; messages in RDS (MySQL).</p>
+    </div>
+
+    <script>
+      const form = document.getElementById('contactForm');
+      const status = document.getElementById('status');
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        status.textContent = 'Sending...';
+        const fd = new FormData(form);
+        try {
+          const res = await fetch('/submit', { method: 'POST', body: fd });
+          const data = await res.json();
+          if (data.ok) {
+            status.textContent = 'Sent successfully';
+            form.reset();
+          } else {
+            status.textContent = 'Error: ' + (data.error || 'unknown');
+          }
+        } catch (err) {
+          status.textContent = 'Network error';
+        }
+      });
+    </script>
+  </body>
+</html>
