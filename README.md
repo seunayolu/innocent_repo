@@ -28,14 +28,6 @@ npm install
 npm start
 ```
 
-Local testing
-
-You can test the app locally without using SSM/Secrets Manager by enabling the local test endpoints. Set:
-
-- `ALLOW_LOCAL_TEST=true`
-
-Then visit `http://localhost:3000/local-test` and submit DB connection details (host, user, password, database, port). The app will use those values instead of reading from SSM/Secrets Manager for subsequent requests.
-
 Notes
 
 - The first successful submission will cause the application to automatically create the `contacts` table in the configured MySQL database if it does not already exist.

@@ -60,9 +60,7 @@ const DB_NAME_PARAM = process.env.DB_NAME_PARAM || '/contactform/db/name';
 const DB_PORT_PARAM = process.env.DB_PORT_PARAM || '/contactform/db/port';
 const DB_PASSWORD_SECRET_NAME_PARAM = process.env.DB_PASSWORD_SECRET_NAME_PARAM || '/contactform/db/secretname';
 const S3_BUCKET_PARAM = process.env.S3_BUCKET_PARAM || '/contactform/s3/bucket';
-const ALLOW_LOCAL_TEST = process.env.ALLOW_LOCAL_TEST === 'true';
 
-let localDbConfig = null; // populated via /local-config when ALLOW_LOCAL_TEST is true
 let cachedS3Bucket = null; // cached S3 bucket name
 
 async function getParameter(name) {
@@ -81,7 +79,6 @@ async function getSecret(name) {
 }
 
 async function getDbConfig() {
-	if (localDbConfig) return localDbConfig;
 	const [host, user, database, port, secretName] = await Promise.all([
 		getParameter(DB_HOST_PARAM),
 		getParameter(DB_USER_PARAM),
@@ -192,29 +189,4 @@ app.get('/health', async (req, res) => {
 	}
 });
 
-// Local test endpoints (only when explicitly enabled)
-if (ALLOW_LOCAL_TEST) {
-	app.get('/local-test', (req, res) => {
-		res.type('html').send(`
-			<form method="post" action="/local-config">
-				<label>Host: <input name="host"/></label><br/>
-				<label>User: <input name="user"/></label><br/>
-				<label>Password: <input name="password"/></label><br/>
-				<label>Database: <input name="database"/></label><br/>
-				<label>Port: <input name="port" value="3306"/></label><br/>
-				<button type="submit">Set local DB config</button>
-			</form>
-		`);
-	});
 
-	app.post('/local-config', express.urlencoded({ extended: true }), (req, res) => {
-		const { host, user, password, database, port } = req.body;
-		localDbConfig = { host, user, password, database, port: port ? parseInt(port, 10) : 3306 };
-		res.send('Local DB config saved. You can now submit the form.');
-	});
-}
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-	console.log(`Server listening on port ${PORT}`);
-});
