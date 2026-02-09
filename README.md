@@ -18,7 +18,7 @@ npm install
 - `DB_USER_PARAM` (optional) — SSM parameter name for DB user (default: /contactform/db/user)
 - `DB_NAME_PARAM` (optional) — SSM parameter name for DB name (default: /contactform/db/name)
 - `DB_PORT_PARAM` (optional) — SSM parameter name for DB port (default: /contactform/db/port)
-- `DB_PASSWORD_SECRET` (optional) — Secrets Manager secret name containing DB password (default: contactform/db/password). Secret may be a plain string or JSON { "password": "..." }
+- `DB_PASSWORD_SECRET_NAME_PARAM` (optional) — SSM parameter name that contains the Secrets Manager secret name for the DB password (default: /contactform/db/secretname)
 
 3. Ensure your runtime provides AWS credentials with permissions to access S3, SSM (GetParameter), and Secrets Manager (GetSecretValue), and RDS connectivity (network & security groups).
 
@@ -40,6 +40,14 @@ Notes
 
 - The first successful submission will cause the application to automatically create the `contacts` table in the configured MySQL database if it does not already exist.
 - This implementation expects AWS credentials provided via environment or an attached IAM role (no .env file used).
+
+Security approach
+
+The DB password is fetched using a **two-tier approach:**
+1. The app reads the Secrets Manager secret name from SSM Parameter Store (`/contactform/db/secretname`)
+2. The app then uses that secret name to fetch the actual password from AWS Secrets Manager
+
+This ensures sensitive data (the password) is stored in Secrets Manager while the secret reference is stored in SSM Parameter Store, providing both security and flexibility.
 
 Region detection
 

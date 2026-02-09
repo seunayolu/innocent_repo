@@ -58,7 +58,7 @@ const DB_HOST_PARAM = process.env.DB_HOST_PARAM || '/contactform/db/host';
 const DB_USER_PARAM = process.env.DB_USER_PARAM || '/contactform/db/user';
 const DB_NAME_PARAM = process.env.DB_NAME_PARAM || '/contactform/db/name';
 const DB_PORT_PARAM = process.env.DB_PORT_PARAM || '/contactform/db/port';
-const DB_PASSWORD_SECRET = process.env.DB_PASSWORD_SECRET || 'contactform/db/password';
+const DB_PASSWORD_SECRET_NAME_PARAM = process.env.DB_PASSWORD_SECRET_NAME_PARAM || '/contactform/db/secretname';
 const S3_BUCKET_PARAM = process.env.S3_BUCKET_PARAM || '/contactform/s3/bucket';
 const ALLOW_LOCAL_TEST = process.env.ALLOW_LOCAL_TEST === 'true';
 
@@ -82,13 +82,17 @@ async function getSecret(name) {
 
 async function getDbConfig() {
 	if (localDbConfig) return localDbConfig;
-	const [host, user, database, port, passwordSecret] = await Promise.all([
+	const [host, user, database, port, secretName] = await Promise.all([
 		getParameter(DB_HOST_PARAM),
 		getParameter(DB_USER_PARAM),
 		getParameter(DB_NAME_PARAM),
 		getParameter(DB_PORT_PARAM),
-		getSecret(DB_PASSWORD_SECRET)
+		getParameter(DB_PASSWORD_SECRET_NAME_PARAM)
 	]);
+
+	if (!secretName) throw new Error('DB password secret name not found in Parameter Store');
+
+	const passwordSecret = await getSecret(secretName);
 
 	const password = (() => {
 		try {
