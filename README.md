@@ -45,6 +45,42 @@ Region detection
 
 If `AWS_REGION` is not set, the server will attempt to detect region from EC2 instance metadata (when running on EC2). It falls back to `us-east-1`.
 
+Querying the database
+
+Connect to your RDS database:
+
+```bash
+mysql -h database-2.cyucot0xapry.us-east-1.rds.amazonaws.com \
+	-u admin \
+	-p \
+	innocent_db
+```
+
+Once connected, use these SQL commands:
+
+```sql
+-- Show all tables
+SHOW TABLES;
+
+-- Show the structure of the contacts table
+DESCRIBE contacts;
+
+-- Show all data in the contacts table
+SELECT * FROM contacts;
+
+-- Show formatted contact data
+SELECT id, name, email, message, attachment_url, created_at FROM contacts;
+
+-- Count total contacts
+SELECT COUNT(*) as total_contacts FROM contacts;
+
+-- Show most recent contacts
+SELECT * FROM contacts ORDER BY created_at DESC LIMIT 10;
+
+-- Show contacts with file attachments only
+SELECT * FROM contacts WHERE attachment_url IS NOT NULL;
+```
+
 If you'd like, I can:
 - Add input validation and recaptcha
 - Add server-side pagination and admin UI
