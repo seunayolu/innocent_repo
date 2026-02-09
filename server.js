@@ -165,8 +165,7 @@ app.post('/submit', upload.single('attachment'), async (req, res) => {
 		let attachmentUrl = null;
 
 		if (req.file) {
-
-			attachmentUrl = await uploadToS3(req.file.buffer, key, req.file.mimetype);
+		const key = `uploads/${Date.now()}_${req.file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
 		}
 
 		const db = await ensureDb();
