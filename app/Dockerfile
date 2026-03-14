@@ -1,4 +1,4 @@
-# Stage 1: Build Stage
+# Stage 1: Build Stage #######
 # Use the official PHP 8.3 image with Apache for building the application
 FROM php:8.3-cli AS builder
 
@@ -17,7 +17,7 @@ RUN apt-get update && apt-get install -y \
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Copy the application files to the working directory
-COPY app/ ./
+COPY . ./
 
 # Install PHP dependencies using Composer
 RUN composer install --no-dev --optimize-autoloader --no-interaction
